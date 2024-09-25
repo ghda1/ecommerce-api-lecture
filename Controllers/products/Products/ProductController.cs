@@ -15,7 +15,7 @@ public class ProductController : ControllerBase
     _productService = productService;
   }
 
-  //? GET => /api/products => Get all the products
+  // //? GET => /api/products => Get all the products
   [HttpGet]
   public IActionResult GetProducts()
   {
@@ -23,11 +23,10 @@ public class ProductController : ControllerBase
     return Ok(products);
   }
 
-  //? GET => /api/products/{id} => Get a single product by Id
+  // //? GET => /api/products/{id} => Get a single product by Id
   [HttpGet("{id:guid}")]
   public IActionResult GetProductById(Guid id)
   {
-    // Find the product 
     var product = _productService.GetProductByIdService(id);
     if (product == null)
     {
@@ -52,7 +51,8 @@ public class ProductController : ControllerBase
   [HttpPost]
   public IActionResult CreateProduct(CreateProductDto newProduct)
   {
-    if (!ProductValidation.isValidName(newProduct.Name)) // "test"
+    // checking validation before create the new product
+    if (!ProductValidation.isValidName(newProduct.Name))
     {
       return BadRequest("Name can not be empty");
     }
@@ -64,37 +64,33 @@ public class ProductController : ControllerBase
     return Created($"/api/products/{product.Id}", product);
   }
 
-  // [HttpPut("{id}")]
-  // public IActionResult UpdateProduct(Guid id, UpdateProductDto updateProduct)
-  // {
-  //   // Find the product 
-  //   var product = _products.FirstOrDefault(product => product.Id == id);
+  [HttpPut("{id}")]
+  public IActionResult UpdateProduct(Guid id, UpdateProductDto updateProduct)
+  {
+    // found the product then check the validation before update the product
+    var foundUpdatedProduct = _productService.GetProductByIdService(id);
 
-  //   if (product == null)
-  //   {
-  //     return NotFound($"Product with {id} not found");
-  //   }
+    if (foundUpdatedProduct == null)
+    {
+      return NotFound($"Product with {id} not found");
+    }
 
-  //   if (updateProduct.Name != null)
-  //   {
+    if (updateProduct.Name != null)
+    {
 
-  //     if (!ProductValidation.isValidName(updateProduct.Name)) // "test"
-  //     {
-  //       return BadRequest("Name can not be empty");
-  //     }
-  //   }
+      if (!ProductValidation.isValidName(updateProduct.Name)) // "test"
+      {
+        return BadRequest("Name can not be empty");
+      }
+    }
 
-  //   if (!ProductValidation.isValidPrice(updateProduct.Price))
-  //   {
-  //     return BadRequest("Price can not be negative");
-  //   }
+    if (!ProductValidation.isValidPrice(updateProduct.Price))
+    {
+      return BadRequest("Price can not be negative");
+    }
+    foundUpdatedProduct = _productService.UpdateProductService(id, updateProduct);
 
-
-  //   product.Name = updateProduct.Name ?? product.Name;
-  //   product.Price = updateProduct.Price;
-  //   product.Description = updateProduct.Description ?? product.Description;
-
-  //   return NoContent();
-  // }
+    return Ok(foundUpdatedProduct);
+  }
 
 }

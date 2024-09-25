@@ -3,26 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-public interface IProductService{
+public interface IProductService
+{
     List<ProductDto> GetProductsService();
     Product CreateProductService(CreateProductDto createProduct);
     bool DeleteProductByIdService(Guid id);
     ProductDto? GetProductByIdService(Guid id);
-    
-} 
-public class ProductService: IProductService
+    ProductDto? UpdateProductService(Guid id, UpdateProductDto updateProduct);
+
+}
+public class ProductService : IProductService
 {
-    private static readonly List<Product> _products = new List<Product>();
+    private static List<Product> _products = new List<Product>();
 
     public List<ProductDto> GetProductsService()
     {
-        // products => Id, Name, Price, Description, CreatedAt 
-        // ProductDto => Id, Name, Price
+        // retrun the product as list of ProductDto
         var products = _products.Select(product => new ProductDto
         {
-            Id = product.Id,
             Name = product.Name,
-            Price = product.Price
+            Price = product.Price,
+            Description = product.Description
         }).ToList();
 
         return products;
@@ -30,6 +31,7 @@ public class ProductService: IProductService
 
     public Product CreateProductService(CreateProductDto createProduct)
     {
+        //Create new product 
         var product = new Product
         {
             Id = Guid.NewGuid(),
@@ -44,7 +46,7 @@ public class ProductService: IProductService
 
     public bool DeleteProductByIdService(Guid id)
     {
-        // Find the product 
+        // Find the product by id and delete it from the list
         var product = _products.FirstOrDefault(product => product.Id == id);
 
         if (product == null)
@@ -59,6 +61,7 @@ public class ProductService: IProductService
 
     public ProductDto? GetProductByIdService(Guid id)
     {
+        // find the product and return it as ProductDto
         var product = _products.FirstOrDefault(product => product.Id == id);
 
         if (product == null)
@@ -66,15 +69,38 @@ public class ProductService: IProductService
             return null;
         }
 
-        // create the return dto 
         var productData = new ProductDto
         {
-            Id = product.Id,
             Name = product.Name,
-            Price = product.Price
+            Price = product.Price,
+            Description = product.Description
         };
 
         return productData;
 
+    }
+
+    public ProductDto? UpdateProductService(Guid id, UpdateProductDto updateProduct)
+    {
+        // Find the product
+        var product = _products.FirstOrDefault(product => product.Id == id);
+        if (product == null)
+        {
+            return null;
+        }
+        // Update the product 
+        product.Name = updateProduct.Name ?? product.Name;
+        product.Price = updateProduct.Price ?? product.Price;
+        product.Description = updateProduct.Description ?? product.Description;
+
+        // return the product as ProductDto
+        var productData = new ProductDto
+        {
+            Name = product.Name,
+            Price = product.Price,
+            Description = product.Description
+        };
+
+        return productData;
     }
 }

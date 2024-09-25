@@ -4,7 +4,7 @@ public static class ProductValidation
   {
     return !string.IsNullOrEmpty(name); 
   }
-  public static bool isValidPrice(decimal price) 
+  public static bool isValidPrice(decimal? price) 
   {
     return price > 0;
   }
